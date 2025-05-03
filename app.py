@@ -2,7 +2,7 @@ import streamlit as st
 import openai
 
 # Set up your OpenAI API key
-openai.api_key = st.secrets["OPENAI_API_KEY"]
+client = openai.OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
 # Prompt Templates
 prompt_templates = {
@@ -46,10 +46,10 @@ generate = st.button("Generate Script")
 
 if generate and topic and hook:
     prompt = prompt_templates[prompt_type].format(topic=topic, hook=hook)
-
+    
     with st.spinner("Generating script..."):
         try:
-            response = openai.ChatCompletion.create(
+            response = client.chat.completions.create(
                 model="gpt-4",
                 messages=[
                     {"role": "system", "content": "You are a viral short-form scriptwriter."},
@@ -58,7 +58,7 @@ if generate and topic and hook:
                 temperature=0.8,
                 max_tokens=300
             )
-            script = response["choices"][0]["message"]["content"]
+            script = response.choices[0].message.content
             st.subheader("Generated Script")
             st.write(script)
         except Exception as e:
